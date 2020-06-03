@@ -1,0 +1,12 @@
+__pycache__/
+build/
+dist/
+.pytest_cache/
+*.eggs
+*.egg-info/
+*.pyc
+
+.idea/
+
+notebooks/
+.ipynb_checkpoints/
