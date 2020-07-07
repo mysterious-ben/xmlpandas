@@ -1,8 +1,8 @@
 # XML Records
 
-This package extracts tabular data from XML.
+`xmlrecords` is a user-friendly wrapper of `xml` package for extraction of tabular data from XML files.
 
->>> This data provider sends all his data in... XML. You know nothing about XML, except that it looks kind of weird and you would *definitely* never use it for tabular data. You don't know what "tags", "attributes" and "XPaths" are, and you don't want to know it. Could you just transform this XML nightmare into a sensible tabular format, like a DataFrame? Don't worry: you are in the right place!
+>>> This data provider sends all his data in... XML. You know nothing about XML, except that it looks kind of weird and you would *definitely* never use it for tabular data. How could you just transform all this XML nightmare into a sensible tabular format, like a DataFrame? Don't worry: you are in the right place!
 
 
 # Installation
@@ -13,6 +13,7 @@ pip install xmlrecords
 
 - The package requires `python 3.7+` and no external dependencies.
 - The package uses `xml.etree.ElementTree` so it's vulnerable to [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack).
+
 
 # Usage
 
@@ -100,6 +101,9 @@ with sqlite3.connect('maindev.db') as conn:
     conn.commit()
 ```
 
+
 # FAQ
 
-(This section is left empty as I haven't yet received any question)
+1. **Why not `xmltodict`?** `xmltodict` can convert arbitrary XML to a python dict. However, it is 2-3 times slower than `xmlrecords` and does not support some features specific for tablular data.
+
+2. **Why not `xml` or `lxml`**? `xmlrecords` uses `xml` under the hood. Using `xml` or `lxml` directly is a viable option but it would require more development effort.
