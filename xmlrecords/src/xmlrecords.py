@@ -1,4 +1,4 @@
-from typing import *
+from typing import Dict, List, Optional
 
 
 def _update_dict_nocollision(d1, d2):
@@ -6,35 +6,55 @@ def _update_dict_nocollision(d1, d2):
     d1.update(d2)
     if len(d1) != expected_length:
         common_keys = set(d1.keys()).intersection(set(d2.keys()))
-        raise ValueError(f'Dictionaries have common keys: {common_keys} (try setting prefix to True)')
+        raise ValueError(
+            f"Dictionaries have common keys: {common_keys} (try setting prefix to True)"
+        )
 
 
-def _update_dict_from_node(d: dict, node, prefix: Optional[str], sep: str, max_depth: Optional[int], strip: bool):
+def _update_dict_from_node(
+    d: dict, node, prefix: Optional[str], sep: str, max_depth: Optional[int], strip: bool
+):
     if node.text is not None:
         text = node.text.strip() if strip else node.text
         if len(text) > 0:
             k = node.tag if prefix is None else prefix
             _update_dict_nocollision(d, {k: text})
     if len(node.attrib) > 0:
-        _update_dict_nocollision(d, {k if prefix is None else prefix+sep+k: v for k, v in node.attrib.items()})
+        _update_dict_nocollision(
+            d, {k if prefix is None else prefix + sep + k: v for k, v in node.attrib.items()}
+        )
     if ((max_depth is None) or (max_depth > 0)) and len(node) > 0:
-        max_depth = max_depth if max_depth is None else max_depth-1
+        max_depth = max_depth if max_depth is None else max_depth - 1
         for child in node:
-            _update_dict_from_node(d, child, None if prefix is None else prefix+sep+child.tag, sep, max_depth, strip)
+            _update_dict_from_node(
+                d,
+                child,
+                None if prefix is None else prefix + sep + child.tag,
+                sep,
+                max_depth,
+                strip,
+            )
 
 
 def _list_to_path(chunks):
-    return '/'.join(chunks)
+    return "/".join(chunks)
 
 
 def _list_to_prefix(chunks, sep):
     return sep.join(chunks) if len(chunks) > 0 else None
 
 
-def parse(xml: bytes, rows_path: List[str], meta_paths: Optional[List[str]] = None,
-          rows_prefix: bool = False, meta_prefix: bool = True, sep: str = '_',
-          rows_max_depth: Optional[int] = None, meta_max_depth: Optional[int] = None,
-          strip_text: bool = True) -> List[Dict]:
+def parse(
+    xml: bytes,
+    rows_path: List[str],
+    meta_paths: Optional[List[str]] = None,
+    rows_prefix: bool = False,
+    meta_prefix: bool = True,
+    sep: str = "_",
+    rows_max_depth: Optional[int] = None,
+    meta_max_depth: Optional[int] = None,
+    strip_text: bool = True,
+) -> List[Dict]:
     """Convert XML data to a list of records
 
     :param xml: XML bytes object
@@ -59,6 +79,7 @@ def parse(xml: bytes, rows_path: List[str], meta_paths: Optional[List[str]] = No
     """
 
     from xml.etree import ElementTree
+
     tree = ElementTree.fromstring(xml)
 
     if meta_paths is None:

@@ -106,4 +106,4 @@ with sqlite3.connect('maindev.db') as conn:
 
 1. **Why not `xmltodict`?** `xmltodict` can convert arbitrary XML to a python dict. However, it is 2-3 times slower than `xmlrecords` and does not support some features specific for tablular data.
 
-2. **Why not `xml` or `lxml`**? `xmlrecords` uses `xml` under the hood. Using `xml` or `lxml` directly is a viable option but it would require more development effort.
+2. **Why not `xml` or `lxml`**? `xmlrecords` uses `xml` under the hood. Using `xml` or `lxml` directly is a viable option too - in case this package doesn't cover your particular use case.
