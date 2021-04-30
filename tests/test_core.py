@@ -51,6 +51,21 @@ xml_0_3 = b"""\
 </Catalog>
 """
 
+xml_0_4 = b"""\
+<Catalog xmlns="darkwoodlib:storage">
+    <Book title="Sunny Night">
+        <author>Mysterious Mark</author>
+        <year>2014</year>
+        <price>10.2</price>
+    </Book>
+    <Book title="Babel-17">
+        <author>Samuel R. Delany</author>
+        <year>1966</year>
+        <price>2.32</price>
+    </Book>
+</Catalog>
+"""
+
 records_0 = [
     {"title": "Sunny Night", "author": "Mysterious Mark", "year": "2014", "price": "10.2"},
     {"title": "Babel-17", "author": "Samuel R. Delany", "year": "1966", "price": "2.32"},
@@ -151,6 +166,7 @@ def _assert_equal_records(records1, records2):
         (xml_0_1, records_0, dict(rows_path=["Shelf", "Book"])),
         (xml_0_2, records_0, dict(rows_path=["Book"])),
         (xml_0_3, records_0, dict(rows_path=["Book"])),
+        (xml_0_4, records_0, dict(rows_path=["Book"])),
         (
             xml_1,
             records_1,
