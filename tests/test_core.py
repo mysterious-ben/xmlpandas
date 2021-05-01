@@ -300,6 +300,29 @@ def _assert_equal_records(records1, records2):
         (xml_3, records_3_1, dict(rows_path=["Book"], subrow_tag="Author")),
     ],
 )
-def test_convert(input_xml, expected_output, kwargs):
+def test_parse(input_xml, expected_output, kwargs):
     records = xmlrecords.parse(input_xml, **kwargs)
     _assert_equal_records(records, expected_output)
+
+
+@pytest.mark.parametrize(
+    "input_xml,expected_output,kwargs",
+    [
+        (xml_0_0, records_0, dict(rows_path=["Book"])),
+    ],
+)
+def test_validate(input_xml, expected_output, kwargs):
+    records = xmlrecords.parse(input_xml, **kwargs)
+    xmlrecords.validate(records, list(expected_output[0].keys()))
+
+
+@pytest.mark.parametrize(
+    "input_xml,expected_output,kwargs",
+    [
+        (xml_0_0, records_0, dict(rows_path=["Book"])),
+    ],
+)
+def test_validate_error(input_xml, expected_output, kwargs):
+    records = xmlrecords.parse(input_xml, **kwargs)
+    with pytest.raises(xmlrecords.XMLValidationError):
+        xmlrecords.validate(records, list(expected_output[0].keys())[:-1])

@@ -21,11 +21,12 @@ def _process_tag(tag: str, remove_namespace: bool) -> str:
     return tag
 
 
-@dataclass
-class Fields:
-    text: bool = True
-    attributes: Optional[List[str]] = None
-    nodes: Optional[List[str]] = None
+# TODO: add option to specify text, attributes and child nodes to parse
+# @dataclass
+# class Fields:
+#     text: bool = True
+#     attributes: Optional[List[str]] = None
+#     nodes: Optional[List[str]] = None
 
 
 def _update_dict_from_node(
@@ -162,3 +163,17 @@ def parse(
                 )
                 records.append(subrow_d)
     return records
+
+
+class XMLValidationError(ValueError):
+    pass
+
+
+def validate(records: List[dict], expected_keys: List[str]):
+    """Validate that records have all expected keys
+
+    :raises: XMLParsingError
+    """
+    for i, r in enumerate(records):
+        if list(r.keys()) != expected_keys:
+            raise XMLValidationError(f"record {i}: {list(r.keys())} != {expected_keys}")
