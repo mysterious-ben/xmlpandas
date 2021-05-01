@@ -52,14 +52,20 @@ import xmlrecords
 records = xmlrecords.parse(
     xml=xml_bytes, 
     records_path=['Shelf', 'Book'],  # The rows are XML nodes with the repeating tag <Book>
-    meta_paths=[['Library', 'Name'], ['Shelf', 'Timestamp']]  # Optionally, you can add more data
+    meta_paths=[['Library', 'Name'], ['Shelf', 'Timestamp']],  # Add additional "meta" nodes
 )
 for r in records:
     print(r)
 
 # Output:
-# {'Library_Name': 'Virtual Shore', 'Shelf_Timestamp': '2020-02-02T05:12:22', 'Title': 'Sunny Night', 'alive': 'no', 'name': 'Mysterious Mark', 'Year': '2017', 'Price': '112.34'}
-# {'Library_Name': 'Virtual Shore', 'Shelf_Timestamp': '2020-02-02T05:12:22', 'Title': 'Babel-17', 'alive': 'yes', 'name': 'Samuel R. Delany', 'Year': '1963', 'Price': '10'}
+# {'Name': 'Virtual Shore', 'Timestamp': '2020-02-02T05:12:22', 'Title': 'Sunny Night', 'alive': 'no', 'name': 'Mysterious Mark', 'Year': '2017', 'Price': '112.34'}
+# {'Name': 'Virtual Shore', 'Timestamp': '2020-02-02T05:12:22', 'Title': 'Babel-17', 'alive': 'yes', 'name': 'Samuel R. Delany', 'Year': '1963', 'Price': '10'}
+
+# Validate record keys
+xmlrecords.validate(
+    records, 
+    expected_keys=['Name', 'Timestamp', 'Title', 'alive', 'name', 'Year', 'Price'],
+)
 ``` 
 
 ## With Pandas
