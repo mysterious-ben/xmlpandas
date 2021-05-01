@@ -87,6 +87,9 @@ def parse(
     :param meta_max_depth: maximum depth of nested nodes for metadata
     :param strip_text: if true, apply str.strip function to XML values
         Set to True if XML has redundant space or new line characters
+    :param namespace: XML namespace to search
+        * = all namespaces
+    :param remove_namespace: if true, do not include namespace in the record key
     :return: list of records
     """
 
