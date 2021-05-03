@@ -8,6 +8,12 @@ class XMLParsingError(ValueError):
 
 
 def _update_dict_nocollision(d1: dict, d2: dict) -> None:
+    """Update the first dict with key-value pairs of the second dict
+
+    :raises: XMLParsingError
+        If the dicts have common keys
+    """
+
     expected_length = len(d1) + len(d2)
     d1.update(d2)
     if len(d1) != expected_length:
@@ -74,6 +80,7 @@ def parse(
     xml: bytes,
     rows_path: List[str],
     subrow_tag: Optional[str] = None,
+    subrow_explode: bool = True,
     meta_paths: Optional[List[List[str]]] = None,
     rows_prefix: bool = False,
     meta_prefix: bool = False,
@@ -91,6 +98,7 @@ def parse(
         Rows are XML nodes with the same tag and (usually) the same structure
     :param subrow_tag: tag of a "subrow" node
         Subrow are nested "row" nodes (children of a "row" node)
+    :param subrow_explode: if True, every subrow spans a separate record
     :param meta_paths: bits to construct XPaths to metadata
         Metadata are XML nodes that will be append to every row
     :param rows_prefix: if true, add a prefix to row fields
@@ -154,19 +162,36 @@ def parse(
             records.append(row_d)
         else:
             subrow_nodes = r_node.findall(subrows_path_)
-            for sr_node in subrow_nodes:
-                subrow_d = dict(**row_d)
-                _update_dict_from_node(
-                    d=subrow_d,
-                    node=sr_node,
-                    prefix=prefix,
-                    sep=sep,
-                    max_depth=rows_max_depth,
-                    strip=strip_text,
-                    rm_namespace=remove_namespace,
-                    skip_child_tag=None,
-                )
-                records.append(subrow_d)
+            if subrow_explode:
+                for sr_node in subrow_nodes:
+                    subrow_d = dict(**row_d)
+                    _update_dict_from_node(
+                        d=subrow_d,
+                        node=sr_node,
+                        prefix=prefix,
+                        sep=sep,
+                        max_depth=rows_max_depth,
+                        strip=strip_text,
+                        rm_namespace=remove_namespace,
+                        skip_child_tag=None,
+                    )
+                    records.append(subrow_d)
+            else:
+                for i, sr_node in enumerate(subrow_nodes):
+                    subrow_d = {}
+                    _update_dict_from_node(
+                        d=subrow_d,
+                        node=sr_node,
+                        prefix=prefix,
+                        sep=sep,
+                        max_depth=rows_max_depth,
+                        strip=strip_text,
+                        rm_namespace=remove_namespace,
+                        skip_child_tag=None,
+                    )
+                    subrow_d = {f"{k}_{i}": v for k, v in subrow_d.items()}
+                    _update_dict_nocollision(row_d, subrow_d)
+                records.append(row_d)
     return records
 
 

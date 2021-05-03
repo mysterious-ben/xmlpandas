@@ -261,6 +261,25 @@ records_3_1 = [
     },
 ]
 
+records_3_2 = [
+    {
+        "title": "Sunny Night",
+        "name_0": "Mysterious Mark",
+        "alive_0": "no",
+        "name_1": "Mysterious Joe",
+        "alive_1": "no",
+        "name_2": "Mysterious Pete",
+        "alive_2": "yes",
+        "year": "2014",
+    },
+    {
+        "title": "Babel-17",
+        "name_0": "Samuel R. Delany",
+        "alive_0": "yes",
+        "year": "1966",
+    },
+]
+
 
 def _assert_equal_records(records1, records2):
     assert len(records1) == len(records2), "Different length"
@@ -298,6 +317,7 @@ def _assert_equal_records(records1, records2):
         (xml_2, records_2_1, dict(rows_path=["Book"], rows_max_depth=1)),
         # (xml_3, records_3_0, dict(rows_path=["Book"], subrow_tag="Author")),
         (xml_3, records_3_1, dict(rows_path=["Book"], subrow_tag="Author")),
+        (xml_3, records_3_2, dict(rows_path=["Book"], subrow_tag="Author", subrow_explode=False)),
     ],
 )
 def test_parse(input_xml, expected_output, kwargs):
