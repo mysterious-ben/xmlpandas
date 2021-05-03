@@ -5,6 +5,7 @@ dist/
 *.eggs
 *.egg-info/
 *.pyc
+.coverage
 
 .idea/
 .vscode/
