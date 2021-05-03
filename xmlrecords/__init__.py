@@ -1,1 +1,1 @@
-from xmlrecords.src.xmlrecords import parse
+from xmlrecords.src.xmlrecords import XMLParsingError, XMLValidationError, parse, validate

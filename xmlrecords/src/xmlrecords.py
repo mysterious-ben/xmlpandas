@@ -3,12 +3,16 @@ from typing import Dict, List, Optional, TypedDict
 from xml.etree import ElementTree
 
 
+class XMLParsingError(ValueError):
+    pass
+
+
 def _update_dict_nocollision(d1: dict, d2: dict) -> None:
     expected_length = len(d1) + len(d2)
     d1.update(d2)
     if len(d1) != expected_length:
         common_keys = set(d1.keys()).intersection(set(d2.keys()))
-        raise ValueError(
+        raise XMLParsingError(
             f"Dictionaries have common keys: {common_keys} (try setting prefix to True)"
         )
 
@@ -104,6 +108,7 @@ def parse(
         * = all namespaces
     :param remove_namespace: if true, do not include namespace in the record key
     :return: list of records
+    :raises: XMLParsingError (subclass of ValueError)
     """
 
     tree = ElementTree.fromstring(xml)
@@ -172,7 +177,7 @@ class XMLValidationError(ValueError):
 def validate(records: List[dict], expected_keys: List[str]):
     """Validate that records have all expected keys
 
-    :raises: XMLParsingError
+    :raises: XMLValidationError (subclass of ValueError)
     """
     for i, r in enumerate(records):
         if list(r.keys()) != expected_keys:
