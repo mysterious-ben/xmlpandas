@@ -171,8 +171,27 @@ records_2_1 = [
     {"title": "Babel-17", "year": "1966", "price": "2.32"},
 ]
 
+records_2_2 = [
+    {
+        "title": "Sunny Night",
+        "name": "Mysterious Mark",
+        "alive": "no",
+        "year": "2014",
+        "price": "10.2",
+        "num": "0",
+    },
+    {
+        "title": "Babel-17",
+        "name": "Samuel R. Delany",
+        "alive": "yes",
+        "year": "1966",
+        "price": "2.32",
+        "num": "1",
+    },
+]
 
-# Nested repeated rows
+
+# Nested repeated rows (= subrows)
 xml_3 = b"""\
 <Catalog>
     <Book>
@@ -202,39 +221,7 @@ xml_3 = b"""\
 </Catalog>
 """
 
-# TODO: add option to collapse sub-rows
 records_3_0 = [
-    {
-        "title": "Sunny Night",
-        "author": [
-            {
-                "name": "Mysterious Mark",
-                "alive": "no",
-            },
-            {
-                "name": "Mysterious Joe",
-                "alive": "no",
-            },
-            {
-                "name": "Mysterious Pete",
-                "alive": "yes",
-            },
-        ],
-        "year": "2014",
-    },
-    {
-        "title": "Babel-17",
-        "author": [
-            {
-                "name": "Samuel R. Delany",
-                "alive": "yes",
-            },
-        ],
-        "year": "1966",
-    },
-]
-
-records_3_1 = [
     {
         "title": "Sunny Night",
         "name": "Mysterious Mark",
@@ -261,6 +248,39 @@ records_3_1 = [
     },
 ]
 
+
+records_3_1 = [
+    {
+        "title": "Sunny Night",
+        "name": "Mysterious Mark",
+        "alive": "no",
+        "year": "2014",
+        "num": "0",
+    },
+    {
+        "title": "Sunny Night",
+        "name": "Mysterious Joe",
+        "alive": "no",
+        "year": "2014",
+        "num": "1",
+    },
+    {
+        "title": "Sunny Night",
+        "name": "Mysterious Pete",
+        "alive": "yes",
+        "year": "2014",
+        "num": "2",
+    },
+    {
+        "title": "Babel-17",
+        "name": "Samuel R. Delany",
+        "alive": "yes",
+        "year": "1966",
+        "num": "0",
+    },
+]
+
+
 records_3_2 = [
     {
         "title": "Sunny Night",
@@ -279,6 +299,38 @@ records_3_2 = [
         "year": "1966",
     },
 ]
+
+# TODO: add option to collapse sub-rows
+# records_3_3 = [
+#     {
+#         "title": "Sunny Night",
+#         "author": [
+#             {
+#                 "name": "Mysterious Mark",
+#                 "alive": "no",
+#             },
+#             {
+#                 "name": "Mysterious Joe",
+#                 "alive": "no",
+#             },
+#             {
+#                 "name": "Mysterious Pete",
+#                 "alive": "yes",
+#             },
+#         ],
+#         "year": "2014",
+#     },
+#     {
+#         "title": "Babel-17",
+#         "author": [
+#             {
+#                 "name": "Samuel R. Delany",
+#                 "alive": "yes",
+#             },
+#         ],
+#         "year": "1966",
+#     },
+# ]
 
 
 def _assert_equal_records(records1, records2):
@@ -315,9 +367,15 @@ def _assert_equal_records(records1, records2):
         ),
         (xml_2, records_2_0, dict(rows_path=["Book"])),
         (xml_2, records_2_1, dict(rows_path=["Book"], rows_max_depth=1)),
-        # (xml_3, records_3_0, dict(rows_path=["Book"], subrow_tag="Author")),
-        (xml_3, records_3_1, dict(rows_path=["Book"], subrow_tag="Author")),
+        (xml_2, records_2_2, dict(rows_path=["Book"], enumerate_rows="num")),
+        (xml_3, records_3_0, dict(rows_path=["Book"], subrow_tag="Author")),
+        (
+            xml_3,
+            records_3_1,
+            dict(rows_path=["Book"], subrow_tag="Author", enumerate_subrows="num"),
+        ),
         (xml_3, records_3_2, dict(rows_path=["Book"], subrow_tag="Author", subrow_explode=False)),
+        # (xml_3, records_3_3, dict(rows_path=["Book"], subrow_tag="Author")),
     ],
 )
 def test_parse(input_xml, expected_output, kwargs):

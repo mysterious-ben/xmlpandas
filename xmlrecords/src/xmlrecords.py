@@ -81,6 +81,8 @@ def parse(
     rows_path: List[str],
     subrow_tag: Optional[str] = None,
     subrow_explode: bool = True,
+    enumerate_rows: Optional[str] = None,
+    enumerate_subrows: Optional[str] = None,
     meta_paths: Optional[List[List[str]]] = None,
     rows_prefix: bool = False,
     meta_prefix: bool = False,
@@ -99,6 +101,11 @@ def parse(
     :param subrow_tag: tag of a "subrow" node
         Subrow are nested "row" nodes (children of a "row" node)
     :param subrow_explode: if True, every subrow spans a separate record
+    :param enumerate_rows: save a row sequential number with this key
+        If None, ignore
+    :param enumerate_subrows: save a subrow sequential number with this key
+        If None or subrow_tag is None or subrow_explode is False, ignore
+    meta_paths: Optional[List[List[st
     :param meta_paths: bits to construct XPaths to metadata
         Metadata are XML nodes that will be append to every row
     :param rows_prefix: if true, add a prefix to row fields
@@ -146,7 +153,7 @@ def parse(
     row_nodes = tree.findall(rows_path_)
     records = []
     prefix = _list_to_prefix(rows_path, sep) if rows_prefix else None
-    for r_node in row_nodes:
+    for row_count, r_node in enumerate(row_nodes):
         row_d = dict(**meta_d)
         _update_dict_from_node(
             d=row_d,
@@ -158,12 +165,14 @@ def parse(
             rm_namespace=remove_namespace,
             skip_child_tag=subrow_tag,
         )
+        if enumerate_rows is not None:
+            row_d[enumerate_rows] = str(row_count)
         if subrow_tag is None:
             records.append(row_d)
         else:
             subrow_nodes = r_node.findall(subrows_path_)
             if subrow_explode:
-                for sr_node in subrow_nodes:
+                for sr_count, sr_node in enumerate(subrow_nodes):
                     subrow_d = dict(**row_d)
                     _update_dict_from_node(
                         d=subrow_d,
@@ -175,9 +184,11 @@ def parse(
                         rm_namespace=remove_namespace,
                         skip_child_tag=None,
                     )
+                    if enumerate_subrows is not None:
+                        subrow_d[enumerate_subrows] = str(sr_count)
                     records.append(subrow_d)
             else:
-                for i, sr_node in enumerate(subrow_nodes):
+                for sr_count, sr_node in enumerate(subrow_nodes):
                     subrow_d = {}
                     _update_dict_from_node(
                         d=subrow_d,
@@ -189,7 +200,7 @@ def parse(
                         rm_namespace=remove_namespace,
                         skip_child_tag=None,
                     )
-                    subrow_d = {f"{k}_{i}": v for k, v in subrow_d.items()}
+                    subrow_d = {f"{k}_{sr_count}": v for k, v in subrow_d.items()}
                     _update_dict_nocollision(row_d, subrow_d)
                 records.append(row_d)
     return records
