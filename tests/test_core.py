@@ -300,37 +300,36 @@ records_3_2 = [
     },
 ]
 
-# TODO: add option to collapse sub-rows
-# records_3_3 = [
-#     {
-#         "title": "Sunny Night",
-#         "author": [
-#             {
-#                 "name": "Mysterious Mark",
-#                 "alive": "no",
-#             },
-#             {
-#                 "name": "Mysterious Joe",
-#                 "alive": "no",
-#             },
-#             {
-#                 "name": "Mysterious Pete",
-#                 "alive": "yes",
-#             },
-#         ],
-#         "year": "2014",
-#     },
-#     {
-#         "title": "Babel-17",
-#         "author": [
-#             {
-#                 "name": "Samuel R. Delany",
-#                 "alive": "yes",
-#             },
-#         ],
-#         "year": "1966",
-#     },
-# ]
+records_3_3 = [
+    {
+        "title": "Sunny Night",
+        "Author": [
+            {
+                "name": "Mysterious Mark",
+                "alive": "no",
+            },
+            {
+                "name": "Mysterious Joe",
+                "alive": "no",
+            },
+            {
+                "name": "Mysterious Pete",
+                "alive": "yes",
+            },
+        ],
+        "year": "2014",
+    },
+    {
+        "title": "Babel-17",
+        "Author": [
+            {
+                "name": "Samuel R. Delany",
+                "alive": "yes",
+            },
+        ],
+        "year": "1966",
+    },
+]
 
 
 def _assert_equal_records(records1, records2):
@@ -368,14 +367,23 @@ def _assert_equal_records(records1, records2):
         (xml_2, records_2_0, dict(rows_path=["Book"])),
         (xml_2, records_2_1, dict(rows_path=["Book"], rows_max_depth=1)),
         (xml_2, records_2_2, dict(rows_path=["Book"], enumerate_rows="num")),
-        (xml_3, records_3_0, dict(rows_path=["Book"], subrow_tag="Author")),
+        (xml_3, records_3_0, dict(rows_path=["Book"], subrow_tag="Author", subrow_explode="rows")),
         (
             xml_3,
             records_3_1,
-            dict(rows_path=["Book"], subrow_tag="Author", enumerate_subrows="num"),
+            dict(
+                rows_path=["Book"],
+                subrow_tag="Author",
+                enumerate_subrows="num",
+                subrow_explode="rows",
+            ),
         ),
-        (xml_3, records_3_2, dict(rows_path=["Book"], subrow_tag="Author", subrow_explode=False)),
-        # (xml_3, records_3_3, dict(rows_path=["Book"], subrow_tag="Author")),
+        (
+            xml_3,
+            records_3_2,
+            dict(rows_path=["Book"], subrow_tag="Author", subrow_explode="columns"),
+        ),
+        (xml_3, records_3_3, dict(rows_path=["Book"], subrow_tag="Author")),
     ],
 )
 def test_parse(input_xml, expected_output, kwargs):

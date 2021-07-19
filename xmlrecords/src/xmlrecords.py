@@ -80,7 +80,7 @@ def parse(
     xml: bytes,
     rows_path: List[str],
     subrow_tag: Optional[str] = None,
-    subrow_explode: bool = True,
+    subrow_explode: Optional[str] = None,
     enumerate_rows: Optional[str] = None,
     enumerate_subrows: Optional[str] = None,
     meta_paths: Optional[List[List[str]]] = None,
@@ -100,7 +100,10 @@ def parse(
         Rows are XML nodes with the same tag and (usually) the same structure
     :param subrow_tag: tag of a "subrow" node
         Subrow are nested "row" nodes (children of a "row" node)
-    :param subrow_explode: if True, every subrow spans a separate record
+    :param subrow_explode: strategy to explode subrows
+        None: subrows are kept as a list of dicts
+        "columns": every subrow spans a separate field (suffixed by increasing int)
+        "rows": every subrow spans a separate record
     :param enumerate_rows: save a row sequential number with this key
         If None, ignore
     :param enumerate_subrows: save a subrow sequential number with this key
@@ -171,7 +174,40 @@ def parse(
             records.append(row_d)
         else:
             subrow_nodes = r_node.findall(subrows_path_)
-            if subrow_explode:
+            if subrow_explode is None:
+                subrow_list = []
+                for sr_count, sr_node in enumerate(subrow_nodes):
+                    subrow_d = {}
+                    _update_dict_from_node(
+                        d=subrow_d,
+                        node=sr_node,
+                        prefix=prefix,
+                        sep=sep,
+                        max_depth=rows_max_depth,
+                        strip=strip_text,
+                        rm_namespace=remove_namespace,
+                        skip_child_tag=None,
+                    )
+                    subrow_list.append(subrow_d)
+                _update_dict_nocollision(row_d, {subrow_tag: subrow_list})
+                records.append(row_d)
+            elif subrow_explode == "columns":
+                for sr_count, sr_node in enumerate(subrow_nodes):
+                    subrow_d = {}
+                    _update_dict_from_node(
+                        d=subrow_d,
+                        node=sr_node,
+                        prefix=prefix,
+                        sep=sep,
+                        max_depth=rows_max_depth,
+                        strip=strip_text,
+                        rm_namespace=remove_namespace,
+                        skip_child_tag=None,
+                    )
+                    subrow_d = {f"{k}_{sr_count}": v for k, v in subrow_d.items()}
+                    _update_dict_nocollision(row_d, subrow_d)
+                records.append(row_d)
+            elif subrow_explode == "rows":
                 for sr_count, sr_node in enumerate(subrow_nodes):
                     subrow_d = dict(**row_d)
                     _update_dict_from_node(
@@ -188,21 +224,7 @@ def parse(
                         subrow_d[enumerate_subrows] = str(sr_count)
                     records.append(subrow_d)
             else:
-                for sr_count, sr_node in enumerate(subrow_nodes):
-                    subrow_d = {}
-                    _update_dict_from_node(
-                        d=subrow_d,
-                        node=sr_node,
-                        prefix=prefix,
-                        sep=sep,
-                        max_depth=rows_max_depth,
-                        strip=strip_text,
-                        rm_namespace=remove_namespace,
-                        skip_child_tag=None,
-                    )
-                    subrow_d = {f"{k}_{sr_count}": v for k, v in subrow_d.items()}
-                    _update_dict_nocollision(row_d, subrow_d)
-                records.append(row_d)
+                raise ValueError(f"Unexpected argument's value: {subrow_explode=}")
     return records
 
 
