@@ -1,1 +1,6 @@
-from xmlrecords.src.xmlrecords import XMLParsingError, XMLValidationError, parse, validate
+from xmlrecords.src.xmlrecords import (  # noqa: F401
+    XMLParsingError,
+    XMLValidationError,
+    parse,
+    validate,
+)
