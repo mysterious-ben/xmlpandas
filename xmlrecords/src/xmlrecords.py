@@ -1,10 +1,8 @@
-# from dataclasses import dataclass
-from typing import Dict, List, Optional
-from xml.etree import ElementTree
+from typing import Any, Dict, List, Optional
 
+from lxml import etree
 
-class XMLParsingError(ValueError):
-    pass
+XMLParsingError = etree.XMLSyntaxError
 
 
 def _update_dict_nocollision(d1: dict, d2: dict) -> None:
@@ -31,17 +29,10 @@ def _process_tag(tag: str, remove_namespace: bool) -> str:
     return tag
 
 
-# TODO: add option to specify text, attributes and child nodes to parse
-# @dataclass
-# class Fields:
-#     text: bool = True
-#     attributes: Optional[List[str]] = None
-#     nodes: Optional[List[str]] = None
-
-
 def _update_dict_from_node(
     d: dict,
-    node: ElementTree.Element,
+    # node: ElementTree.Element,
+    node: etree.Element,
     prefix: Optional[str],
     sep: str,
     max_depth: Optional[int],
@@ -92,6 +83,7 @@ def parse(
     strip_text: bool = True,
     namespace: str = "*",
     remove_namespace: bool = True,
+    recover: bool = False,
 ) -> List[Dict]:
     """Convert XML data to a list of records
 
@@ -125,11 +117,12 @@ def parse(
     :param namespace: XML namespace to search
         * = all namespaces
     :param remove_namespace: if true, do not include namespace in the record key
+    :param recover: if true, try to recover from XML parsing errors
     :return: list of records
     :raises: XMLParsingError (subclass of ValueError)
     """
-
-    tree = ElementTree.fromstring(xml)
+    parser = etree.XMLParser(recover=recover)
+    tree = etree.fromstring(xml, parser=parser)
 
     if meta_paths is None:
         meta_paths = []
@@ -177,7 +170,7 @@ def parse(
             if subrow_explode is None:
                 subrow_list = []
                 for sr_count, sr_node in enumerate(subrow_nodes):
-                    subrow_d = {}
+                    subrow_d: Dict[str, Any] = {}
                     _update_dict_from_node(
                         d=subrow_d,
                         node=sr_node,

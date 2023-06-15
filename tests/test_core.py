@@ -412,3 +412,23 @@ def test_validate_error(input_xml, expected_output, kwargs):
     records = xmlrecords.parse(input_xml, **kwargs)
     with pytest.raises(xmlrecords.XMLValidationError):
         xmlrecords.validate(records, list(expected_output[0].keys())[:-1])
+
+
+xml_bad_tokens = b"""\
+<Catalog>
+    <Book title="Sunny & Cold" author="Mysterious Alex" year="2023" />
+    <Book title="Babel-17" author="Samuel R.Delany" year="1966" />
+</Catalog>
+"""
+
+
+records_bad_tokens = [
+    {"title": "Sunny Cold", "author": "Mysterious Alex", "year": "2023"},
+    {"title": "Babel-17", "author": "Samuel R.Delany", "year": "1966"},
+]
+
+
+def test_parse_xml_with_bad_characters():
+    with pytest.raises(xmlrecords.XMLParsingError):
+        xmlrecords.parse(xml_bad_tokens, rows_path=["Book"], recover=False)
+    xmlrecords.parse(xml_bad_tokens, rows_path=["Book"], recover=True)
